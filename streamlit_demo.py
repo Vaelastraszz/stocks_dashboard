@@ -103,29 +103,21 @@ if __name__ == "__main__":
             calculate_variations(fetch_data(symbol))
         )
 
-        st.metric(
-            label="Last Day % Change",
-            value=fetch_data(symbol)["4. close"].iloc[-1],
-            delta=f"{last_day_change:.2f}%",
-        )
-
-        st.metric(
-            label="Last Week % Change",
-            value=fetch_data(symbol)["4. close"].iloc[-1],
-            delta=f"{last_week_change:.2f}%",
-        )
-
-        st.metric(
-            label="Last Month % Change",
-            value=fetch_data(symbol)["4. close"].iloc[-1],
-            delta=f"{last_month_change:.2f}%",
-        )
-
-        st.metric(
-            label="Last Year % Change",
-            value=fetch_data(symbol)["4. close"].iloc[-1],
-            delta=f"{last_year_change:.2f}%",
-        )
+        for cols, change, label_change in zip(
+            st.columns(4),
+            [last_day_change, last_week_change, last_month_change, last_year_change],
+            [
+                "last_day_change",
+                "last_week_change",
+                "last_month_change",
+                "last_year_change",
+            ],
+        ):
+            cols.metric(
+                label=label_change,
+                value=fetch_data(symbol)["4. close"].iloc[-1],
+                delta=f"{change:.2f}%",
+            )
 
         render_candle_chart(fetch_data(symbol), symbol)
         st.header("Latest News")
