@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import requests
 import plotly.express as px
+import plotly.graph_objects as go
 
 
 def render_title() -> None:
@@ -35,6 +36,42 @@ def render_choice_symbol() -> str:
     return selected_symbol
 
 
+def calculate_moving_average(data: pd.DataFrame, window: int) -> pd.DataFrame:
+    data["moving_average"] = data["4. close"].rolling(window=window).mean()
+    return data
+
+
+def render_candle_chart(data: pd.DataFrame, symbol: str) -> None:
+    fig = go.Figure(
+        data=[
+            go.Candlestick(
+                x=data.index,
+                open=data["1. open"],
+                high=data["2. high"],
+                low=data["3. low"],
+                close=data["4. close"],
+            ),
+            go.Scatter(
+                x=data.index,
+                y=calculate_moving_average(data, 20)["moving_average"],
+                mode="lines",
+                line=go.scatter.Line(color="red"),
+                name="20 days SMA",
+            ),
+        ]
+    )
+
+    fig.update_layout(
+        title=f"Candlestick Chart for {symbol}", xaxis_title="Date", yaxis_title="Price"
+    )
+    st.plotly_chart(fig)
+
+
 if __name__ == "__main__":
     render_title()
     symbol = render_choice_symbol()
+
+    if symbol:
+        st.subheader(f"Displaying data for {symbol}")
+        st.write(fetch_data(symbol))
+        render_candle_chart(fetch_data(symbol), symbol)
