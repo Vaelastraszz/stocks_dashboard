@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import requests
+import plotly.express as px
 
 
 def render_title() -> None:
@@ -15,8 +16,7 @@ def get_api_key(
         return first_line.split(":")[1]
 
 
-def fetch_data(symbol, api_key) -> pd.DataFrame:
-    api_key = get_api_key()
+def fetch_data(symbol: str, api_key=get_api_key()) -> pd.DataFrame:
     url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={api_key}"
     response = requests.get(url)
 
@@ -29,5 +29,12 @@ def fetch_data(symbol, api_key) -> pd.DataFrame:
         st.error("Error fetching data")
 
 
+def render_choice_symbol() -> str:
+    ticker_symbol = ["NVDA", "AAPL", "GOOGL", "AMZN", "MSFT"]
+    selected_symbol = st.selectbox("Select a symbol", ticker_symbol)
+    return selected_symbol
+
+
 if __name__ == "__main__":
     render_title()
+    symbol = render_choice_symbol()
