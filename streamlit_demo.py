@@ -19,7 +19,7 @@ def get_api_key(
         return first_line.split(":")[1], second_line.split(":")[1]
 
 
-@st.cache
+@st.cache_data
 def fetch_data(symbol: str, api_key=get_api_key()[0]) -> pd.DataFrame:
     url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={api_key.strip()}"
     response = requests.get(url)
@@ -33,7 +33,7 @@ def fetch_data(symbol: str, api_key=get_api_key()[0]) -> pd.DataFrame:
         st.error("Error fetching data")
 
 
-@st.cache
+@st.cache_data
 def fetch_news(symbol: str, api_key=get_api_key()[1]) -> pd.DataFrame:
     url = f"https://newsapi.org/v2/everything?q={symbol}&apiKey={api_key.strip()}"
     response = requests.get(url)
