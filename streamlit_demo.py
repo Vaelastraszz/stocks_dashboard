@@ -100,7 +100,7 @@ if __name__ == "__main__":
     if symbol:
         st.subheader(f"Displaying data for {symbol}")
         data = fetch_data(symbol)
-        st.write(data)
+        st.dataframe(data, use_container_width=True)
 
         last_day_change, last_week_change, last_month_change, last_year_change = (
             calculate_variations(data)
