@@ -19,6 +19,7 @@ def get_api_key(
         return first_line.split(":")[1], second_line.split(":")[1]
 
 
+@st.cache
 def fetch_data(symbol: str, api_key=get_api_key()[0]) -> pd.DataFrame:
     url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={api_key.strip()}"
     response = requests.get(url)
@@ -32,6 +33,7 @@ def fetch_data(symbol: str, api_key=get_api_key()[0]) -> pd.DataFrame:
         st.error("Error fetching data")
 
 
+@st.cache
 def fetch_news(symbol: str, api_key=get_api_key()[1]) -> pd.DataFrame:
     url = f"https://newsapi.org/v2/everything?q={symbol}&apiKey={api_key.strip()}"
     response = requests.get(url)
@@ -97,10 +99,11 @@ if __name__ == "__main__":
 
     if symbol:
         st.subheader(f"Displaying data for {symbol}")
-        st.write(fetch_data(symbol))
+        data = fetch_data(symbol)
+        st.write(data)
 
         last_day_change, last_week_change, last_month_change, last_year_change = (
-            calculate_variations(fetch_data(symbol))
+            calculate_variations(data)
         )
 
         for cols, change, label_change in zip(
@@ -115,11 +118,11 @@ if __name__ == "__main__":
         ):
             cols.metric(
                 label=label_change,
-                value=fetch_data(symbol)["4. close"].iloc[-1],
+                value=data["4. close"].iloc[-1],
                 delta=f"{change:.2f}%",
             )
 
-        render_candle_chart(fetch_data(symbol), symbol)
+        render_candle_chart(data, symbol)
         st.header("Latest News")
         for index, row in fetch_news(symbol).head(5).iterrows():
             st.subheader(row["title"])
