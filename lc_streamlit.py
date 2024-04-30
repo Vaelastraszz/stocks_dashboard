@@ -39,6 +39,20 @@ def fetch_daily_data(symbol: str, api_key: str = get_api_key()[0]) -> pd.DataFra
         return None
 
 
+@st.cache_data
+def fetch_news(symbol: str, api_key: str = get_api_key()[1]) -> pd.DataFrame:
+    url = f"https://newsapi.org/v2/everything?q={symbol}&sortBy=publishedAt&apiKey={api_key}"
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        data = response.json()
+        df = pd.DataFrame(data["articles"])
+        return df
+    else:
+        st.write("Error fetching data")
+        return None
+
+
 if __name__ == "__main__":
     render_title()
     selected_symbol = render_choice_symbols()
