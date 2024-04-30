@@ -53,6 +53,40 @@ def fetch_news(symbol: str, api_key: str = get_api_key()[1]) -> pd.DataFrame:
         return None
 
 
+def calculate_moving_average(data: pd.DataFrame, window: int = 25) -> pd.Series:
+    data["MA"] = data["4. close"].rolling(window=window).mean()
+    return data
+
+
+def render_candle_chart(data: pd.DataFrame) -> None:
+    fig = go.Figure(
+        data=[
+            go.Candlestick(
+                x=data.index,
+                open=data["1. open"],
+                high=data["2. high"],
+                low=data["3. low"],
+                close=data["4. close"],
+            ),
+            go.Scatter(
+                x=data.index,
+                y=calculate_moving_average(data, 20)["MA"],
+                mode="lines",
+                line=go.scatter.Line(color="red"),
+                name="Moving average",
+            ),
+        ]
+    )
+
+    fig.update_layout(
+        title="Candlestick chart",
+        xaxis_title="Date",
+        yaxis_title="Price",
+    )
+
+    st.plotly_chart(fig)
+
+
 if __name__ == "__main__":
     render_title()
     selected_symbol = render_choice_symbols()
@@ -60,3 +94,5 @@ if __name__ == "__main__":
         st.header(f"Daily data for {selected_symbol}")
         data = fetch_daily_data(selected_symbol)
         st.dataframe(data.head(), use_container_width=True)
+        st.subheader("Candlestick chart")
+        render_candle_chart(data)
