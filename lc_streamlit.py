@@ -53,7 +53,7 @@ def fetch_news(symbol: str, api_key: str = get_api_key()[1]) -> pd.DataFrame:
         return None
 
 
-def calculate_moving_average(data: pd.DataFrame, window: int = 25) -> pd.Series:
+def calculate_moving_average(data: pd.DataFrame, window: int = 25) -> pd.DataFrame:
     data["MA"] = data["4. close"].rolling(window=window).mean()
     return data
 
