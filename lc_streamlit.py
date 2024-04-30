@@ -53,9 +53,9 @@ def fetch_news(symbol: str, api_key: str = get_api_key()[1]) -> pd.DataFrame:
         return None
 
 
-def calculate_moving_average(data: pd.DataFrame, window: int = 25) -> pd.DataFrame:
-    data["MA"] = data["4. close"].rolling(window=window).mean()
-    return data
+def calculate_moving_average(data: pd.DataFrame, window: int = 25) -> pd.Series:
+    ma = data["4. close"].rolling(window=window).mean()
+    return ma.shift(-window)
 
 
 def render_candle_chart(data: pd.DataFrame) -> None:
@@ -70,7 +70,7 @@ def render_candle_chart(data: pd.DataFrame) -> None:
             ),
             go.Scatter(
                 x=data.index,
-                y=calculate_moving_average(data, 20)["MA"],
+                y=calculate_moving_average(data, 20),
                 mode="lines",
                 line=go.scatter.Line(color="red"),
                 name="Moving average",
@@ -88,12 +88,14 @@ def render_candle_chart(data: pd.DataFrame) -> None:
 
 
 def get_variations_price(data: pd.DataFrame) -> tuple[float]:
+
     data[["1. open", "2. high", "3. low", "4. close"]] = data[
         ["1. open", "2. high", "3. low", "4. close"]
     ].astype(float)
     last_day_variation = data["4. close"].pct_change(1).dropna().iloc[0] * 100
     last_week_variation = data["4. close"].pct_change(5).dropna().iloc[0] * 100
     last_month_variation = data["4. close"].pct_change(20).dropna().iloc[0] * 100
+
     return last_day_variation, last_week_variation, last_month_variation
 
 
