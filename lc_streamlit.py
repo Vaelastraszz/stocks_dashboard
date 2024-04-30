@@ -87,12 +87,45 @@ def render_candle_chart(data: pd.DataFrame) -> None:
     st.plotly_chart(fig)
 
 
+def get_variations_price(data: pd.DataFrame) -> tuple[float]:
+    data[["1. open", "2. high", "3. low", "4. close"]] = data[
+        ["1. open", "2. high", "3. low", "4. close"]
+    ].astype(float)
+    last_day_variation = data["4. close"].pct_change(1).dropna().iloc[0] * 100
+    last_week_variation = data["4. close"].pct_change(5).dropna().iloc[0] * 100
+    last_month_variation = data["4. close"].pct_change(20).dropna().iloc[0] * 100
+    return last_day_variation, last_week_variation, last_month_variation
+
+
 if __name__ == "__main__":
     render_title()
     selected_symbol = render_choice_symbols()
     if selected_symbol:
+
         st.header(f"Daily data for {selected_symbol}")
         data = fetch_daily_data(selected_symbol)
+
         st.dataframe(data.head(), use_container_width=True)
         st.subheader("Candlestick chart")
+
+        last_day_variation, last_week_variation, last_month_variation = (
+            get_variations_price(data)
+        )
+        list_variation_text = [
+            "last day change",
+            "last week change",
+            "last month change",
+        ]
+
+        for cols, variation, variation_text in zip(
+            st.columns(3),
+            [last_day_variation, last_week_variation, last_month_variation],
+            list_variation_text,
+        ):
+            cols.metric(
+                label=variation_text,
+                value=data["4. close"].iloc[-1],
+                delta=f"{variation:.2f}%",
+            )
+
         render_candle_chart(data)
