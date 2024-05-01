@@ -39,7 +39,7 @@ def fetch_daily_data(symbol: str, api_key: str = get_api_key()[0]) -> pd.DataFra
         return None
 
 
-def set_params_news(symbol: str, api_key: str = get_api_key()[1]) -> str:
+def set_params_news(symbol: str, api_key: str = get_api_key()[1]) -> dict[str, str]:
     query_params = {
         "q": symbol,
         "apiKey": api_key,
