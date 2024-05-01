@@ -39,10 +39,22 @@ def fetch_daily_data(symbol: str, api_key: str = get_api_key()[0]) -> pd.DataFra
         return None
 
 
+def set_params_news(symbol: str, api_key: str = get_api_key()[1]) -> str:
+    query_params = {
+        "q": symbol,
+        "apiKey": api_key,
+        "language": "en",
+        "sortBy": "publishedAt",
+    }
+    return query_params
+
+
 @st.cache_data
-def fetch_news(symbol: str, api_key: str = get_api_key()[1]) -> pd.DataFrame:
-    url = f"https://newsapi.org/v2/everything?q={symbol}&apiKey={api_key}"
-    response = requests.get(url)
+def fetch_news(symbol: str) -> pd.DataFrame:
+    end_point = "https://newsapi.org/v2/everything"
+    query_params = set_params_news(symbol)
+
+    response = requests.get(end_point, params=query_params)
 
     if response.status_code == 200:
         data = response.json()
@@ -132,7 +144,7 @@ if __name__ == "__main__":
 
         render_candle_chart(data)
 
-        st.header(f"Freshes news for {selected_symbol}")
+        st.header(f"Freshest news for {selected_symbol}")
         news = fetch_news(selected_symbol)
 
         for index, row in news.head().iterrows():
