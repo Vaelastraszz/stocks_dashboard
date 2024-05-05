@@ -1,9 +1,7 @@
 import streamlit as st
 import pandas as pd
 import requests
-import plotly.express as px
 import plotly.graph_objects as go
-import numpy as np
 
 
 def render_title() -> None:
